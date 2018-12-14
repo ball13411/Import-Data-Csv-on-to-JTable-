@@ -1,0 +1,97 @@
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+
+//Main Class ---> GUI
+public class GUI extends JFrame {
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				GUI frame = new GUI();						//  Create GUI
+				frame.setVisible(true);						//  Set True for show GUI 
+			}
+		});
+	}
+	
+	public GUI() {
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(0,0,700,550);										// Set size and position  GUI
+		setTitle("GUI TEST");										// Set Title
+		getContentPane().setLayout(null);
+		
+		// Menu
+		JMenuBar menuBar = new JMenuBar();							// Create Menubar
+		JMenu menu1 = new JMenu("File");							// Create Menu 'File'
+        JMenuItem menu1_1 = new JMenuItem("Open File");				// MenuItem ' Open File'
+        menu1.add(menu1_1);											// add MenuItem in Menu
+        menuBar.add(menu1);											// add Menu in MenuItem
+        setJMenuBar(menuBar);		
+		
+        // Label Result
+		final JLabel lblResult = new JLabel("Humidity and temperature", JLabel.CENTER);		// Create JLabel
+		lblResult.setBounds(230, 30, 200, 30);												// Set size and position JLabel
+		getContentPane().add(lblResult);
+		
+		// Table
+		JTable table = new JTable();				// Create JTable
+		getContentPane().add(table);				// add JTable in GUI
+				
+		// Table Model
+		final DefaultTableModel model = (DefaultTableModel)table.getModel();
+		model.addColumn("Humidity");              	 // Create Column and add to Jtable
+		model.addColumn("Temp(C)");					// Create Column and add to Jtable
+		model.addColumn("Temp(F)");					// Create Column and add to Jtable
+        
+		// ScrollPane
+		JScrollPane scroll = new JScrollPane(table);		// Create Scroll in Jtable
+		scroll.setBounds(84, 70, 500, 300);
+		getContentPane().add(scroll);						// add Scroll in GUI
+		
+	    menu1_1.addActionListener(new ActionListener() { 			// Action Even for  Menu
+				public void actionPerformed(ActionEvent e) {
+					JFileChooser fileopen = new JFileChooser();			// Choose File
+					FileFilter filter = new FileNameExtensionFilter(	// File Type : ' Text,CSV,JSON'
+							"Text/CSV file", "txt", "csv");
+					fileopen.addChoosableFileFilter(filter);
+					int ret = fileopen.showDialog(null, "Choose file");		// Open File
+					if (ret == JFileChooser.APPROVE_OPTION ) {
+						File file = fileopen.getSelectedFile();
+						try {
+							BufferedReader br = new BufferedReader(new FileReader(file));	// Read file
+							String line;													// in Line
+							int row = 0 ;													// Set row
+							while ((line = br.readLine()) != null ) {	
+								String[] arr = line.split(",");								// split ','  (CSV file)
+								model.addRow(new Object[0]);
+								model.setValueAt(arr[0], row,0);							// add data first to row0
+								model.setValueAt(arr[1], row,1);							// add data second to row1
+								model.setValueAt(arr[2], row,2);							// add data third to row2
+								row++;
+							}
+							br.close();										
+						} catch (IOException ex) {
+							ex.printStackTrace();
+						}
+					}
+				}
+	        });
+		}	
+	
+}
